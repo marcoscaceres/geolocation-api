@@ -1453,6 +1453,10 @@
           performing the following steps:
         </p>
         <ol class="algorithm">
+          <li>If |accuracyMode| is {{AccuracyMode/"approximate"}}, set
+          |positionData|["altitude"], |positionData|["altitudeAccuracy"],
+          |positionData|["speed"], and |positionData|["heading"] to null.
+          </li>
           <li>Let |coords:GeolocationCoordinates| be a newly created
           {{GeolocationCoordinates}} instance.
           </li>
