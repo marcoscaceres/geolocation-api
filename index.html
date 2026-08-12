@@ -969,17 +969,23 @@
                       </li>
                       <li>If |cachedPosition|'s
                       {{GeolocationPosition/timestamp}}'s value is greater than
-                      |cacheTime|,
+                      |cacheTime|, and either |choice| is
+                      {{AccuracyMode/"approximate"}}, or
                       |cachedPosition|.{{GeolocationPosition/[[accuracyMode]]}}
-                      equals |choice|, and either
-                      |cachedPosition|.{{GeolocationPosition/[[accuracyMode]]}}
-                      is {{AccuracyMode/"approximate"}} or
+                      equals |choice| and
                       |cachedPosition|.{{GeolocationPosition/[[isHighAccuracy]]}}
                       equals |options|.{{PositionOptions/enableHighAccuracy}}:
                         <ol>
+                          <li>Let |reportedPosition| be |cachedPosition|.
+                          </li>
+                          <li>If |choice| is {{AccuracyMode/"approximate"}} and
+                          |cachedPosition|.{{GeolocationPosition/[[accuracyMode]]}}
+                          is {{AccuracyMode/"precise"}}, set |reportedPosition|
+                          to the result of [=coarsening=] |cachedPosition|.
+                          </li>
                           <li>[=Queue a task=] on the [=geolocation task
                           source=] with a step that [=invokes=]
-                          |successCallback| with « |cachedPosition| » and
+                          |successCallback| with « |reportedPosition| » and
                           "`report`".
                           </li>
                           <li>Terminate this algorithm.
@@ -1475,6 +1481,37 @@
           |accuracyMode|.
           </li>
         </ol>
+        <p>
+          To <dfn data-lt="coarsening">coarsen</dfn> a
+          {{GeolocationPosition}} |position:GeolocationPosition|, perform the
+          following steps. They return a {{GeolocationPosition}}.
+        </p>
+        <ol class="algorithm">
+          <li>Let |positionData| be a [=map=] whose keys are the attribute names
+          of the {{GeolocationCoordinates}} interface and whose values are the
+          corresponding attribute values of |position|'s
+          {{GeolocationPosition/coords}}.
+          </li>
+          <li>Set |positionData|["latitude"], |positionData|["longitude"] and
+          |positionData|["accuracy"] to the
+          {{GeolocationCoordinates/latitude}},
+          {{GeolocationCoordinates/longitude}} and
+          {{GeolocationCoordinates/accuracy}} that an [=approximate location
+          information source=] would return for |position|'s location.
+          </li>
+          <li>Return [=a new `GeolocationPosition`=] passing |positionData|,
+          |position|'s {{GeolocationPosition/timestamp}},
+          |position|.{{GeolocationPosition/[[isHighAccuracy]]}}, and
+          {{AccuracyMode/"approximate"}}.
+          </li>
+        </ol>
+        <p class="note">
+          Coarsening an already acquired [=precise position=] lets a user agent
+          satisfy a request for an [=approximate position=] from its cache,
+          rather than acquiring a new position that it would then coarsen to a
+          similar area. The site receives nothing more precise than it asked
+          for either way.
+        </p>
       </section>
     </section>
     <section id="position_error_interface" data-dfn-for=
